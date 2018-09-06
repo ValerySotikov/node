@@ -1,77 +1,40 @@
+const debug = require('debug')('app:startup');
+const config = require('config');
+const morgan = require('morgan');
+const helmet = require('helmet');
 const Joi = require('joi');
+const logger = require('./middleware/logger');
+const courses = require('./routes/courses');
+const home = require('./routes/home');
 const express = require('express');
 const app = express();
 
+app.set('view engine', 'pug');
+app.set('views', './views');
+
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'));
+app.use(helmet());
+app.use('/api/courses', courses);
+app.use('/', home);
 
-const courses = [
-    { id: 1, name: 'course_1' },
-    { id: 2, name: 'course_2' },
-    { id: 3, name: 'course_3' },
-    { id: 4, name: 'course_4' },
-    { id: 5, name: 'course_5' }
-];
+//  Configuration
+console.log('Application Name: ' + config.get('name'));
+console.log('Mail Server: ' + config.get('mail.host'));
+console.log('Mail Password: ' + config.get('mail.password'));
 
-const ERR_404_MSG = 'The course with the given ID was not found';
+if (app.get('env') === 'development') {
+    app.use(morgan('tiny'));
+    debug('Morgan enabled...');
+}
 
-app.get('/', (req, res) => {
-    res.send('Hello world!!!');
+app.use(logger);
+
+app.use(function(req, res, next) {
+    console.log("Authenticating...");
+    next();
 });
-
-app.get('/api/courses', (req, res) => {
-    res.send(courses);
-});
-
-app.post('/api/courses', (req, res) => {
-    const { error } = validateCourse(req.body);
-
-    if (error) return res.status(400).send(error.details[0].message);
-
-    const course = {
-        id: courses.length + 1,
-        name: req.body.name
-    };
-    courses.push(course);
-    res.send(course);
-});
-
-app.put('/api/courses/:id', (req, res) => {
-    //  Lookup the course
-    //  If not existing, return 404
-    const course = courses.find(c => c.id === parseInt(req.params.id));
-    if (!course) return res.status(404).send(ERR_404_MSG);
-
-    //  Validate
-    //  If invalid, return 400 - Bad request
-    const { error } = validateCourse(req.body); //  result.error
-
-    if (error) return res.status(400).send(error.details[0].message);
-
-    //  Update course
-    course.name = req.body.name;
-    res.send(course);
-    //  Return updated course to the client
-});
-
-app.get('/api/courses/:id', (req, res) => {
-    const course = courses.find(c => c.id === parseInt(req.params.id));
-    if (!course) return res.status(404).send(ERR_404_MSG);
-    res.send(course);
-});
-
-app.delete('/api/courses/:id', (req, res) => {
-    //  Lookup the course
-    //  Not existing, return 404
-    const course = courses.find(c => c.id === parseInt(req.params.id));
-    if (!course) return res.status(404).send(ERR_404_MSG);
-
-    //  Delete
-    const index = courses.indexOf(course);
-    courses.splice(index, 1);
-
-    //Return the same course
-    res.send(course);
-}); 
 
 //  PORT
 const port = process.env.PORT || 3000;
@@ -79,13 +42,5 @@ const port = process.env.PORT || 3000;
 app.listen(port, () => {
     console.log(`Listening on port ${port}...`);
 });
-
-function validateCourse(course) {
-    const schema = {
-        name: Joi.string().min(3).required()
-    };
-
-    return Joi.validate(course, schema);
-}
 
 
