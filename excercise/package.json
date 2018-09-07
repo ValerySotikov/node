@@ -1,0 +1,11 @@
+{
+  "name": "excercise",
+  "version": "1.0.0",
+  "description": "",
+  "main": "exercise.js",
+  "scripts": {
+    "start": "node excercise.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
