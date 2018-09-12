@@ -47,12 +47,16 @@ async function removeAuthor(courseId, authorId) {
     course.save();
 }
 
-removeAuthor('5b96623d090d0d0a387badc8', '5b96623d090d0d0a387badc7');
-// addAuthor('5b96623d090d0d0a387badc8', new Author({name: 'Tom Riddle'}));
 
-// createCourse('Node Course', [
-//     new Author({name: 'Mosh'}),
-//     new Author({name: 'John'})
-// ]);
-// updateAuthor('5b965a65948df41798218df2');
+async function updateAuthor(courseId) {
+    const course = await Course.update({ _id: courseId }, {
+        $unset: {
+           'author': ''
+        }
+    });
+}
+
+removeAuthor('5b974a34bfb0671418bd9547', '5b974f4db7c93032109b0d09');
+// addAuthor('5b974a34bfb0671418bd9547', new Author({name: 'Amy'}));
+
 

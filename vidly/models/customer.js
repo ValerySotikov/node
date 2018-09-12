@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Joi = require('joi');
 
-const Customer = mongoose.model('Customer', new mongoose.Schema({
+const customerSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true
@@ -16,13 +16,14 @@ const Customer = mongoose.model('Customer', new mongoose.Schema({
         type: Boolean,
         required: true
     }
-}));
+});
 
+const Customer = mongoose.model('Customer', customerSchema);
 
 function validateCustomer(customer) {
     const schema = {
         name: Joi.string().min(5).max(50).required(),
-        phone: Joi.string().min(11).max(20).required,
+        phone: Joi.string().min(5).max(20).required,
         isGold: Joi.boolean()
     }
 
@@ -30,5 +31,6 @@ function validateCustomer(customer) {
 }
 
 
+exports.customerSchema = customerSchema;
 exports.Customer = Customer;
 exports.validate = validateCustomer;

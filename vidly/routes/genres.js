@@ -66,10 +66,10 @@ async function putGenre(id, title) {
 
 
 async function postGenre(title) {
-    let genre = new Genre({ name: title });
+   const genre = new Genre({ name: title });
 
     try {
-        genre = await genre.save();
+        await genre.save();
         return genre;
     } catch (ex) {
         for (field in ex.errors)
