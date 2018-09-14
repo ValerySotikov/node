@@ -1,5 +1,6 @@
 const express = require('express');
 const {Customer, validate} = require('../models/customer'); //.Customer
+const auth = require('../middleware/auth');
 
 const router = express.Router();
 const MSG404 = 'The customer with the given ID was not found';
@@ -19,14 +20,14 @@ router.get('/', async (req, res) => {
 });
 
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
     let customer = await deleteCustomer(req.params.id);
     if (!customer) res.status(404).send(MSG404);
     res.send(customer);
 });
 
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', auth, async (req, res) => {
     const {error} = validate(req.body);
     if (error) res.status(400).send(error.details[0].message);
 
@@ -36,7 +37,7 @@ router.put('/:id', async (req, res) => {
 });
 
 
-router.post('/', async (req, res) => {
+router.post('/', auth, async (req, res) => {
     const {error} = validate(req.body);
     if (error) res.status(400).send(error.details[0].message);
     
