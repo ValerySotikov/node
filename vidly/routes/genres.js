@@ -1,19 +1,21 @@
+const validateObjectId = require('../middleware/validateObjectId');
 const admin = require('../middleware/admin');
 const auth = require('../middleware/auth');
 const express = require('express');
 const {Genre, validate} = require('../models/genre');
 const router = express.Router();
 const MSG404 = 'The genre with the given ID was not found';
+const mongoose = require('mongoose');
 
 
 router.get('/', async (req, res, next) => {
-    throw new Error('Something failed');
+    // throw new Error('Something failed');
     let genres = await getGenres();
     res.send(genres);
 });
 
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', validateObjectId, async (req, res) => {
     let result = await getSingleGenre( req.params.id );
     if (!result) return res.status(404).send(MSG404);
     res.send(result);
